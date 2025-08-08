@@ -17,7 +17,7 @@ This will:
 
 - `POST /currency/add` — Add a cryptocurrency to the tracking list
 - `POST /currency/remove` — Remove a cryptocurrency from the tracking list
-- `POST /currency/price` — Get the price of a cryptocurrency at a specific timestamp (returns the closest nearest price in USD)
+- `POST /currency/price` — Get the price of a cryptocurrency at a specific timestamp (returns the nearest price in USD)
 
 > **Note:** The `./config/dev.yaml` config file sets the fetch interval to **30 seconds**.
 > You can change it, but keep in mind coinpaprika rate limits.
