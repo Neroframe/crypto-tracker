@@ -133,9 +133,9 @@ func (h *CryptoHandler) GetPrice(c *gin.Context) {
 		return
 	}
 
-	// Reject 0 or negative timestamp
-	if req.Timestamp <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "timestamp must be > 0"})
+	// Check ts boundries
+	if req.Timestamp < 0 || req.Timestamp > time.Now().Unix()+3600 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "timestamp out of range"})
 		return
 	}
 

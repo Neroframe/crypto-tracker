@@ -59,7 +59,7 @@ func (r *GormRepo) RemoveCurrency(ctx context.Context, symbol string) error {
 	return nil
 }
 
-// Finds the nearest price ≤ ts for a symbol
+// Finds the nearest price with closest to `ts` (before or after)
 func (r *GormRepo) GetPriceSnapshot(ctx context.Context, symbol string, ts time.Time) (*domain.PriceSnapshot, error) {
 	var cm CurrencyModel
 	if err := r.db.WithContext(ctx).
@@ -71,23 +71,56 @@ func (r *GormRepo) GetPriceSnapshot(ctx context.Context, symbol string, ts time.
 		return nil, fmt.Errorf("gorm GetPriceSnapshot (currency lookup): %w", err)
 	}
 
-	var pm PriceSnapshotModel
+	tsUnix := ts.Unix()
+
+	// Try exact match
+	var exact PriceSnapshotModel
 	if err := r.db.WithContext(ctx).
-		Where("currency_id = ? AND timestamp <= ?", cm.ID, ts.Unix()).
-		Order("timestamp DESC").
-		First(&pm).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, domain.ErrPriceNotFound
+		Where("currency_id = ? AND timestamp = ?", cm.ID, tsUnix).
+		First(&exact).Error; err == nil {
+		return &domain.PriceSnapshot{
+			ID:         exact.ID,
+			CurrencyID: exact.CurrencyID,
+			Timestamp:  time.Unix(exact.Timestamp, 0).UTC(),
+			Price:      exact.Price,
+			CreatedAt:  exact.CreatedAt,
+		}, nil
+	}
+
+	// Fallback to nearest older, newer
+	var older, newer PriceSnapshotModel
+	errOlder := r.db.WithContext(ctx).
+		Where("currency_id = ? AND timestamp < ?", cm.ID, tsUnix).
+		Order("timestamp DESC").Limit(1).First(&older).Error
+
+	errNewer := r.db.WithContext(ctx).
+		Where("currency_id = ? AND timestamp > ?", cm.ID, tsUnix).
+		Order("timestamp ASC").Limit(1).First(&newer).Error
+
+	if errors.Is(errOlder, gorm.ErrRecordNotFound) && errors.Is(errNewer, gorm.ErrRecordNotFound) {
+		return nil, domain.ErrPriceNotFound
+	}
+
+	var chosen PriceSnapshotModel
+	switch {
+	case errOlder == nil && errNewer == nil:
+		if (tsUnix - older.Timestamp) <= (newer.Timestamp - tsUnix) {
+			chosen = older
+		} else {
+			chosen = newer
 		}
-		return nil, fmt.Errorf("gorm GetPriceSnapshot (price lookup): %w", err)
+	case errOlder == nil:
+		chosen = older
+	case errNewer == nil:
+		chosen = newer
 	}
 
 	return &domain.PriceSnapshot{
-		ID:         pm.ID,
-		CurrencyID: pm.CurrencyID,
-		Timestamp:  time.Unix(pm.Timestamp, 0).UTC(),
-		Price:      pm.Price,
-		CreatedAt:  pm.CreatedAt,
+		ID:         chosen.ID,
+		CurrencyID: chosen.CurrencyID,
+		Timestamp:  time.Unix(chosen.Timestamp, 0).UTC(),
+		Price:      chosen.Price,
+		CreatedAt:  chosen.CreatedAt,
 	}, nil
 }
 
