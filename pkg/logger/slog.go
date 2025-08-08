@@ -67,7 +67,6 @@ func New(cfg Config) *Logger {
 
 	// set global default logger
 	root := slog.New(handler)
-	slog.SetDefault(root)
 
 	return &Logger{root}
 }

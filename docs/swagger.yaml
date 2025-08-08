@@ -1,0 +1,203 @@
+basePath: /
+definitions:
+  httpdto.AddCurrencyRequest:
+    properties:
+      symbol:
+        example: BTC
+        maxLength: 10
+        minLength: 1
+        type: string
+    required:
+    - symbol
+    type: object
+  httpdto.AddCurrencyResponse:
+    properties:
+      created_at:
+        example: "2025-08-08T18:00:00Z"
+        type: string
+      id:
+        example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+        type: string
+      symbol:
+        example: BTC
+        type: string
+    type: object
+  httpdto.PriceQueryRequest:
+    properties:
+      symbol:
+        example: BTC
+        maxLength: 10
+        minLength: 1
+        type: string
+      timestamp:
+        example: 1723123200
+        type: integer
+    required:
+    - symbol
+    - timestamp
+    type: object
+  httpdto.PriceQueryResponse:
+    properties:
+      price:
+        example: 29753.55
+        type: number
+      requested_timestamp:
+        example: 1723123200
+        type: integer
+      returned_timestamp:
+        example: 1723123199
+        type: integer
+      symbol:
+        example: BTC
+        type: string
+    type: object
+  httpdto.RemoveCurrencyRequest:
+    properties:
+      symbol:
+        example: BTC
+        maxLength: 10
+        minLength: 1
+        type: string
+    required:
+    - symbol
+    type: object
+  httpdto.RemoveCurrencyResponse:
+    properties:
+      message:
+        example: removed BTC
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for tracking cryptocurrency prices
+  title: Crypto Tracker API
+  version: "1.0"
+paths:
+  /currency/add:
+    post:
+      consumes:
+      - application/json
+      description: Adds a cryptocurrency by symbol to start tracking
+      parameters:
+      - description: Currency Symbol
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/httpdto.AddCurrencyRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/httpdto.AddCurrencyResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a new currency
+      tags:
+      - Currency
+  /currency/price:
+    post:
+      consumes:
+      - application/json
+      description: Returns the closest price snapshot at or before the given timestamp
+      parameters:
+      - description: Symbol and Unix Timestamp
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/httpdto.PriceQueryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/httpdto.PriceQueryResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get historical price snapshot
+      tags:
+      - Price
+  /currency/remove:
+    post:
+      consumes:
+      - application/json
+      description: Removes a tracked cryptocurrency by symbol
+      parameters:
+      - description: Currency Symbol
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/httpdto.RemoveCurrencyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/httpdto.RemoveCurrencyResponse'
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Remove a tracked currency
+      tags:
+      - Currency
+swagger: "2.0"

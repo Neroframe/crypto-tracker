@@ -12,10 +12,10 @@ import (
 var symbolRegex = regexp.MustCompile(`^[A-Z0-9]{1,10}$`)
 
 type Currency struct {
-	ID        uuid.UUID `db:"id"         json:"id"`
-	Symbol    string    `db:"symbol"     json:"symbol"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	ID        uuid.UUID
+	Symbol    string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func NewCurrency(raw string) (*Currency, error) {
@@ -33,11 +33,11 @@ func NewCurrency(raw string) (*Currency, error) {
 }
 
 type PriceSnapshot struct {
-	ID         uuid.UUID `db:"id"            json:"id"`
-	CurrencyID uuid.UUID `db:"currency_id"   json:"currency_id"`
-	Timestamp  time.Time `db:"timestamp"     json:"timestamp"`
-	Price      float64   `db:"price"         json:"price"`
-	CreatedAt  time.Time `db:"created_at"    json:"created_at"`
+	ID         uuid.UUID
+	CurrencyID uuid.UUID
+	Timestamp  time.Time
+	Price      float64
+	CreatedAt  time.Time
 }
 
 func NewPriceSnapshot(curID uuid.UUID, ts time.Time, val float64) (*PriceSnapshot, error) {

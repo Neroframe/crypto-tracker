@@ -1,0 +1,301 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for tracking cryptocurrency prices",
+        "title": "Crypto Tracker API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/currency/add": {
+            "post": {
+                "description": "Adds a cryptocurrency by symbol to start tracking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Currency"
+                ],
+                "summary": "Add a new currency",
+                "parameters": [
+                    {
+                        "description": "Currency Symbol",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpdto.AddCurrencyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/httpdto.AddCurrencyResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/currency/price": {
+            "post": {
+                "description": "Returns the closest price snapshot at or before the given timestamp",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Price"
+                ],
+                "summary": "Get historical price snapshot",
+                "parameters": [
+                    {
+                        "description": "Symbol and Unix Timestamp",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpdto.PriceQueryRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/httpdto.PriceQueryResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/currency/remove": {
+            "post": {
+                "description": "Removes a tracked cryptocurrency by symbol",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Currency"
+                ],
+                "summary": "Remove a tracked currency",
+                "parameters": [
+                    {
+                        "description": "Currency Symbol",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpdto.RemoveCurrencyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/httpdto.RemoveCurrencyResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "httpdto.AddCurrencyRequest": {
+            "type": "object",
+            "required": [
+                "symbol"
+            ],
+            "properties": {
+                "symbol": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 1,
+                    "example": "BTC"
+                }
+            }
+        },
+        "httpdto.AddCurrencyResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2025-08-08T18:00:00Z"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                },
+                "symbol": {
+                    "type": "string",
+                    "example": "BTC"
+                }
+            }
+        },
+        "httpdto.PriceQueryRequest": {
+            "type": "object",
+            "required": [
+                "symbol",
+                "timestamp"
+            ],
+            "properties": {
+                "symbol": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 1,
+                    "example": "BTC"
+                },
+                "timestamp": {
+                    "type": "integer",
+                    "example": 1723123200
+                }
+            }
+        },
+        "httpdto.PriceQueryResponse": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "number",
+                    "example": 29753.55
+                },
+                "requested_timestamp": {
+                    "type": "integer",
+                    "example": 1723123200
+                },
+                "returned_timestamp": {
+                    "type": "integer",
+                    "example": 1723123199
+                },
+                "symbol": {
+                    "type": "string",
+                    "example": "BTC"
+                }
+            }
+        },
+        "httpdto.RemoveCurrencyRequest": {
+            "type": "object",
+            "required": [
+                "symbol"
+            ],
+            "properties": {
+                "symbol": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 1,
+                    "example": "BTC"
+                }
+            }
+        },
+        "httpdto.RemoveCurrencyResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "removed BTC"
+                }
+            }
+        }
+    }
+}

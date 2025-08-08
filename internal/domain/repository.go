@@ -10,5 +10,5 @@ type CryptoRepository interface {
 	RemoveCurrency(ctx context.Context, symbol string) error
 	GetPriceSnapshot(ctx context.Context, symbol string, ts time.Time) (*PriceSnapshot, error)
 	SavePriceSnapshot(ctx context.Context, snap *PriceSnapshot) error
-	ListCurrencies(ctx context.Context) ([]*Currency, error)
+	ListCurrencies(ctx context.Context, limit, offset int) ([]*Currency, error)
 }

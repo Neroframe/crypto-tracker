@@ -14,6 +14,7 @@ type (
 		HTTP     HTTP     `yaml:"http"`
 		Postgres Postgres `yaml:"postgres"`
 		Log      Log      `yaml:"log"`
+		External External `yaml:"external"`
 	}
 
 	HTTP struct {
@@ -40,6 +41,12 @@ type (
 		Format       string `yaml:"format"`       // "text" or "json"
 		SourceFolder string `yaml:"sourceFolder"` // project folder name
 	}
+
+	External struct {
+		CoinPaprikaURL string        `yaml:"coinpaprikaUrl"`
+		RateLimit      float64       `yaml:"rateLimit"`
+		FetchInterval  time.Duration `yaml:"fetchInterval"`
+	}
 )
 
 func Load(path string) (*Config, error) {
@@ -50,7 +57,9 @@ func Load(path string) (*Config, error) {
 	defer file.Close()
 
 	var cfg Config
-	decoder := yaml.NewDecoder(file)
-	err = decoder.Decode(&cfg)
+	d := yaml.NewDecoder(file)
+	if err := d.Decode(&cfg); err != nil {
+		return nil, err
+	}
 	return &cfg, nil
 }
